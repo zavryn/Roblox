@@ -55,7 +55,7 @@ getgenv().Player = {
 --// Helper Functions \\--
 function Globals:Unload()
     for _, connection in ipairs(table.clone(Globals.connections)) do
-        connection:Declarations()
+        connection:Disconnect()
     end
 
     Clear(Globals.connections)
