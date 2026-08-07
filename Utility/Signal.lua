@@ -21,9 +21,7 @@ function Signal.new()
     }, Signal)
 end
 function Signal:Connect(callback)
-    assert(type(callback) == "function", "Signal callback must be a function.")
-
-    if self._destroyed then
+    if self._destroyed or type(callback) ~= "function" then
         return
     end
 
@@ -69,20 +67,20 @@ function Signal:Once(callback)
         return
     end
 
-     local connection
-     connection = self:Connect(function(...)
+    local connection
+    connection = self:Connect(function(...)
         connection:Disconnect()
         callback(...)
-     end)
+    end)
 
-     return connection
+    return connection
 end
 function Signal:Wait()
     if self._destroyed then
         return
     end
 
-    local thread = coroutine.thread()
+    local thread = coroutine.running()
     self:Once(function(...)
         task.spawn(thread, ...)
     end)
@@ -101,6 +99,7 @@ function Signal:Destroy()
     self._destroyed = true
     table.clear(self._connections)
 end
+
 
 --// Usage \\--
 --      // Create Signal
