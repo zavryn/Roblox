@@ -70,7 +70,7 @@ getgenv().Connection = function(signal, callback)
     Insert(Globals.connections, connection)
     return connection
 end
-Globals.Tween = function(instance, property, time)
+getgenv().Tween = function(instance, property, time)
     if not inst or not prop then
         return
     end
