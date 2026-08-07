@@ -71,7 +71,7 @@ getgenv().Connection = function(signal, callback)
     return connection
 end
 getgenv().Tween = function(instance, property, time)
-    if not inst or not prop then
+    if not instance or not property then
         return
     end
 
