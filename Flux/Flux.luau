@@ -8,7 +8,7 @@
 -- Flux Library Setup
 --================================================
 
-local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/Maid.luau"))
+local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/Maid.luau"))()
 
 local Flux = {
 	_maid = Maid.new()
@@ -22,7 +22,7 @@ end
 -- TweenManager
 --================================================
 
-local TweenManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/TweenManager.luau"))
+local TweenManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/TweenManager.luau"))()
 
 function Flux.Tween(object: Instance, properties: {}, duration: number?, style: Enum.EasingStyle?, direction: Enum.EasingDirection?): Tween?
 	local tween = TweenManager.Tween(object, properties, duration, style, direction)
@@ -39,7 +39,7 @@ end
 -- UIManager
 --================================================
 
-local UIManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/UIManager.luau"))
+local UIManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/UIManager.luau"))()
 
 function Flux.MouseEnter(object: GuiObject, callback: () -> ()): RBXScriptConnection?
 	UIManager.MouseEnter(object, callback, Flux._maid)
@@ -65,7 +65,7 @@ end
 -- Utility
 --================================================
 
-local Utility = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/Utility.luau"))
+local Utility = loadstring(game:HttpGet("https://raw.githubusercontent.com/zavryn/Roblox/refs/heads/main/Flux/Modules/Utility.luau"))()
 
 Flux.Noop = Utility.Noop
 Flux.Lerp = Utility.Lerp
