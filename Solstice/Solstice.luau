@@ -599,7 +599,7 @@ function WindowMethods:Category(title: string)
 	--// Title
 	inst["title"] = Solstice.Create("TextLabel", {
 		Parent = inst["container"],
-		Size = Dim2New(1, 0, 0, 19),
+		Size = Dim2New(1, 0, 0, 12),
 		Text = title,
 		TextColor3 = "PlaceholderText",
 		TextScaled = false,
@@ -614,6 +614,20 @@ function WindowMethods:Category(title: string)
 		Position = Dim2New(0, 0, 0, 19),
 		Size = Dim2New(1, 0, 1, -19)
 	})
+	Solstice.CreateListLayout(inst["pageContainer"], DimNew(0, 5))
+	
+	--// Behaviour
+	inst["pageContainer"].ChildAdded:Connect(function()
+		local pages = 0
+		
+		for _, child in ipairs(inst["pageContainer"]:GetChildren()) do
+			if child:IsA("Frame") then
+				pages += 1
+			end
+		end
+		
+		inst["container"].Size = Dim2New(1, 0, 0, 12 + 7 + (pages * 17) + ((pages - 1) * 5)) -- 12 = title size, 7 = padding between title and pageContainer
+	end)
 	
 	--// Return
 	return category
