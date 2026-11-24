@@ -38,7 +38,7 @@ local Solstice = {
 
 	CurrentTheme = nil,
 	PreventDrag = false,
-	ActiveTab = nil
+	ActivePage = nil
 }
 
 local LocalPlayer = Players.LocalPlayer
@@ -309,7 +309,7 @@ WindowMethods.__index = WindowMethods
 
 function Solstice:Window(properties: {}): {}
 	local window = setmetatable({
-		instances = {},
+		Instances = {},
 		_visible = true,
 		_draggable = true,
 		_theme = THEMES[properties.Theme] or THEMES["Ember"],
@@ -321,7 +321,7 @@ function Solstice:Window(properties: {}): {}
 		}
 	}, WindowMethods)
 
-	local inst = window.instances
+	local inst = window.Instances
 	Solstice.CurrentTheme = window._theme
 
 	--// Screen
@@ -444,14 +444,14 @@ function Solstice:Window(properties: {}): {}
 		TextXAlignment = Enum.TextXAlignment.Left
 	})
 	
-	-- Tab Section
-	inst["tabSection"] = Solstice.Create("Frame", {
+	-- Category Section
+	inst["categorySection"] = Solstice.Create("Frame", {
 		Parent = inst["sidebar"],
 		BackgroundTransparency = 1,
 		Position = Dim2New(0, 8, 0, 59),
 		Size = Dim2New(1, -16, 1, -119)
 	})
-	Solstice.CreateListLayout(inst["tabSection"], DimNew(0, 15))
+	Solstice.CreateListLayout(inst["categorySection"], DimNew(0, 15))
 	
 	--// Topbar
 	inst["topbar"] = Solstice.Create("Frame", {
@@ -499,6 +499,9 @@ function Solstice:Window(properties: {}): {}
 	Solstice.Keybind(window._properties.ToggleKey, function()
 		window:ToggleVisible()
 	end)
+	
+	--// Return
+	return window
 end
 
 --//========================================
@@ -507,21 +510,21 @@ end
 
 function WindowMethods:ToggleVisible(...)
 	self._visible = not self._visible
-	self.instances["main"].Visible = self._visible
-	self.instances["background"].Visible = self._visible
+	self.Instances["main"].Visible = self._visible
+	self.Instances["background"].Visible = self._visible
 end
 
 function WindowMethods:Unload()
 	Flux._maid:Cleanup()
 	
-	self.instances["screen"]:Destroy()
+	self.Instances["screen"]:Destroy()
 
 	table.clear(Solstice)
 	Solstice = nil
 end
 
 function WindowMethods:Drag()
-	local size = self.instances["main"].AbsoluteSize
+	local size = self.Instances["main"].AbsoluteSize
 	local inset = GuiService:GetGuiInset().Y
 	local viewport = CurrentCamera.ViewportSize
 
@@ -549,11 +552,11 @@ function WindowMethods:Drag()
 		end
 	end
 	
-	Flux.InputBegan(self.instances["topbar"], began)
-	Flux.InputEnded(self.instances["topbar"], ended)
+	Flux.InputBegan(self.Instances["topbar"], began)
+	Flux.InputEnded(self.Instances["topbar"], ended)
 	
-	Flux.InputBegan(self.instances["sidebar"], began)
-	Flux.InputEnded(self.instances["sidebar"], ended)
+	Flux.InputBegan(self.Instances["sidebar"], began)
+	Flux.InputEnded(self.Instances["sidebar"], ended)
 	
 	Flux.Connect(UserInputService.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseMovement and dragging.Enabled then
@@ -567,9 +570,53 @@ function WindowMethods:Drag()
 		if self._draggable then
 			local delta = (interpolation.Target - interpolation.Current)
 			interpolation.Current += delta * math.min(dt * 20, 1)
-			self.instances["main"].Position = UDim2.fromOffset(interpolation.Current.X, interpolation.Current.Y)
+			self.Instances["main"].Position = UDim2.fromOffset(interpolation.Current.X, interpolation.Current.Y)
 		end
 	end))
+end
+
+--//========================================
+--// Category
+--//========================================
+
+local CategoryMethods = {}
+CategoryMethods.__index = CategoryMethods
+
+function WindowMethods:Category(title: string)
+	local category = setmetatable({
+		Instances = {}
+	}, CategoryMethods)
+	
+	local inst = category.Instances
+	
+	--// Category Container
+	inst["container"] = Solstice.Create("Frame", {
+		Parent = self.Instances["categorySection"],
+		BackgroundTransparency = 1,
+		Size = Dim2New(1, 0, 0, 12)
+	})
+	
+	--// Title
+	inst["title"] = Solstice.Create("TextLabel", {
+		Parent = inst["container"],
+		Size = Dim2New(1, 0, 0, 19),
+		Text = title,
+		TextColor3 = "PlaceholderText",
+		TextScaled = false,
+		TextSize = 12,
+		TextXAlignment = Enum.TextXAlignment.Left
+	})
+	
+	--// Pages
+	inst["pageContainer"] = Solstice.Create("Frame", {
+		Parent = inst["container"],
+		BackgroundTransparency = 1,
+		Position = Dim2New(0, 0, 0, 19),
+		Size = Dim2New(1, 0, 1, -19)
+	})
+	
+	--// Return
+	return category
 end
 
 --//========================================
