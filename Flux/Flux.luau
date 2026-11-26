@@ -38,7 +38,7 @@ end
 
 Flux._maid = Maid.new()
 
-function Flux.Connect(signal: RBXScriptSignal, callback: () -> ()): RBXScriptConnection?
+function Flux.Connect(signal: RBXScriptSignal, callback: () -> ()): {}?
 	if Flux._destroyed then
 		return
 	end
@@ -49,9 +49,15 @@ function Flux.Connect(signal: RBXScriptSignal, callback: () -> ()): RBXScriptCon
 
 	local connection = signal:Connect(callback)
 
-	Flux._maid:GiveTask(connection)
+	local taskId = Flux._maid:GiveTask(connection)
 
-	return connection
+    return {
+        Connection = connection,
+        TaskId = taskId,
+        Disconnect = function()
+            Flux._maid:RemoveTask(taskId, true)
+        end
+    }
 end
 
 --//========================================
