@@ -271,6 +271,7 @@ local WindowMethods = {}
 WindowMethods.__index = WindowMethods
 
 function Solstice:Window(properties: {}?): {}
+    --// Variables
     properties = properties or {}
     
     local window = setmetatable({
@@ -297,6 +298,7 @@ function Solstice:Window(properties: {}?): {}
         ResetOnSpawn = false,
         ZIndexBehavior = Enum.ZIndexBehavior.Global
     })
+    
     Flux._maid:GiveTask(instances["screen"])
 
     --// Background
@@ -561,6 +563,7 @@ local CategoryMethods = {}
 CategoryMethods.__index = CategoryMethods
 
 function WindowMethods:Category(title: string): {}
+    --// Variables
     local category = setmetatable({
         Instances = {},
         Window = self
@@ -626,6 +629,7 @@ local PageMethods = {}
 PageMethods.__index = PageMethods
 
 function CategoryMethods:Page(title: string, icon: string?): {}
+    --// Variables
     local page = setmetatable({
         Instances = {},
         ActiveTab = nil,
@@ -768,6 +772,7 @@ local TabMethods = {}
 TabMethods.__index = TabMethods
 
 function PageMethods:Tab(title: string): {}
+    --// Variables
     local tab = setmetatable({
         Instances = {},
         Page = self
@@ -887,6 +892,80 @@ function TabMethods:Activate()
     
     -- Set ActiveTab
     self.Page.ActiveTab = self
+end
+
+--//========================================
+--// Section
+--//========================================
+
+local SectionMethods = {}
+SectionMethods.__index = SectionMethods
+
+function TabMethods:Section(title: string, side: string): {}?
+    --// Variables
+    local section = setmetatable({
+        Instances = {},
+        Tab = self
+    }, SectionMethods)
+    
+    local instances = section.Instances
+    
+    if typeof(side) ~= "string" then
+        warn("Section side must be 'left' or 'right'")
+        return nil
+    end
+    
+    side = side:lower()
+    if side ~= 'left' and side ~= 'right' then
+        warn("Section side must be 'left' or 'right'")
+        return nil
+    end
+    
+    side = self.Instances[`{side}Container`]
+    
+    --// Section Container
+    instances["sectionContainer"] = Solstice.Create("Frame", {
+        Parent = side,
+        BackgroundColor3 = "SectionBG",
+        Size = Dim2New(1, 0, 0, 33)
+    })
+    Solstice.CreateCorner(instances["sectionContainer"], DimNew(0, 10))
+    Solstice.CreateStroke(instances["sectionContainer"], "Border", 0, Enum.BorderStrokePosition.Inner)
+
+    --// Section Title
+    instances["sectionTitle"] = Solstice.Create("TextLabel", {
+        Parent = instances["sectionContainer"],
+        Position = Dim2New(0, 5, 0, 5),
+        Size = Dim2New(1, -10, 0, 13),
+        Text = title or "Title",
+        TextColor3 = "PlaceholderText",
+        TextXAlignment = Enum.TextXAlignment.Left
+    })
+
+    --// Element Container
+    instances["elementContainer"] = Solstice.Create("Frame", {
+        Parent = instances["sectionContainer"],
+        BackgroundTransparency = 1,
+        Position = Dim2New(0, 5, 0, 28),
+        Size = Dim2New(1, -10, 1, -33)
+    })
+    instances["elementContainerListLayout"] = Solstice.CreateListLayout(instances["elementContainer"], DimNew(0, 5))
+    
+    --// Functions
+    local TITLE_SIZE = instances["sectionTitle"].TextSize
+    local TITLE_GAP = 15
+    local SECTION_GAP = 5
+    
+    local function UpdateContainerSize()
+        local height = TITLE_SIZE + TITLE_GAP + SECTION_GAP + instances["elementContainerListLayout"].AbsoluteContentSize.Y
+        instances["sectionContainer"].Size = Dim2New(1, 0, 0, height)
+    end
+    
+    --// Connections
+    instances["elementContainer"].ChildAdded:Connect(UpdateContainerSize)
+    
+    --// Return
+    return section
 end
 
 --//========================================
