@@ -699,7 +699,7 @@ function CategoryMethods:Page(title: string, icon: string?): {}
     end)
     
     Flux.InputBegan(instances["page"], function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and self.Window.ActivePage ~= page then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
             page:Activate()
         end
     end)
