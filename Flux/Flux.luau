@@ -14,7 +14,7 @@ local Flux = {
 }
 
 function Flux.Destroy()
-	if Flux._destroyed or Flux._maid == nil then
+	if Flux._destroyed or not Flux._maid then
 		return
 	end
 	
