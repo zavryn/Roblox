@@ -463,7 +463,7 @@ function Solstice:Window(properties: {}?): {}
         TileSize = Dim2New(0, 18, 0, 18)
     })
 
-    --// Behaviour
+    --// Behavior
     window:Drag()
     
     window._keybindConnection = Solstice.Keybind(window._properties.ToggleKey, function()
@@ -704,6 +704,7 @@ function CategoryMethods:Page(title: string, icon: string?): {}
         end
     end)
     
+    --// Behavior
     if active then
         page:Activate()
     end
@@ -717,12 +718,12 @@ end
 --//========================================
 
 function PageMethods:Activate()
+    --// Variables
     local previous = self.Window.ActivePage
     if previous == self then
         return
     end
     
-    --// Variables
     local instances = self.Instances
     local theme = Solstice.CurrentTheme
     
@@ -758,3 +759,138 @@ function PageMethods:Activate()
     --// Set ActivePage
     self.Window.ActivePage = self
 end
+
+--//========================================
+--// Tab Construction
+--//========================================
+
+local TabMethods = {}
+TabMethods.__index = TabMethods
+
+function PageMethods:Tab(title: string): {}
+    local tab = setmetatable({
+        Instances = {},
+        Page = self
+    }, TabMethods)
+    
+    local instances = tab.Instances
+    local active = self.ActiveTab == nil
+    
+    --// Topbar Title
+    instances["topbarTitle"] = Solstice.Create("TextLabel", {
+        Parent = self.Instances["topbarTabs"],
+        Size = Dim2New(0, 1000, 0, 23),
+        Text = title or "Tab",
+        TextColor3 = "InactiveText",
+        TextScaled = false,
+        TextSize = 18,
+        TextXAlignment = Enum.TextXAlignment.Left
+    })
+    instances["topbarTitle"].Size = Dim2New(0, instances["topbarTitle"].TextBounds.X, 0, 23)
+
+    --// Topbar Accent
+    instances["topbarAccent"] = Solstice.Create("Frame", {
+        Parent = instances["topbarTitle"],
+        BackgroundColor3 = "Accent",
+        Position = Dim2New(0.5, 0, 1, -2),
+        Size = Dim2New(0, 0, 0, 2)
+    })
+
+    --// Content Container
+    instances["contentContainer"] = Solstice.Create("Frame", {
+        Parent = self.Instances["contentContainer"],
+        BackgroundTransparency = 1,
+        Position = Dim2New(1, 0, 0, 0),
+        Size = Dim2New(1, 0, 1, 0),
+        ClipsDescendants = true
+    })
+
+    instances["leftContainer"] = Solstice.Create("ScrollingFrame", {
+        Parent = instances["contentContainer"],
+        Size = Dim2New(0.5, -5, 1, 0)
+    })
+    Solstice.CreateListLayout(instances["leftContainer"], DimNew(0, 10))
+
+    instances["rightContainer"] = Solstice.Create("ScrollingFrame", {
+        Parent = instances["contentContainer"],
+        Position = Dim2New(0.5, 5, 0, 0),
+        Size = Dim2New(0.5, -5, 1, 0)
+    })
+    Solstice.CreateListLayout(instances["rightContainer"], DimNew(0, 10))
+    
+    --// Connections
+    Flux.MouseEnter(instances["topbarTitle"], function()
+        if self.ActiveTab == tab then
+            return
+        end
+        
+        self.Window._draggable = false
+        Flux.Tween(instances["topbarTitle"], {TextColor3 = Solstice.CurrentTheme.Text})
+    end)
+    
+    Flux.MouseLeave(instances["topbarTitle"], function()
+        if self.ActiveTab == tab then
+            return
+        end
+
+        self.Window._draggable = true
+        Flux.Tween(instances["topbarTitle"], {TextColor3 = Solstice.CurrentTheme.InactiveText})
+    end)
+    
+    Flux.InputBegan(instances["topbarTitle"], function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            tab:Activate()
+        end
+    end)
+    
+    --// Behavior
+    if active then
+        tab:Activate()
+    end
+    
+    --// Return
+    return tab
+end
+
+--//========================================
+--// Tab Methods
+--//========================================
+
+function TabMethods:Activate()
+    --// Variables
+    local previous = self.Page.ActiveTab
+    if previous == self then
+        return
+    end
+    
+    local instances = self.Instances
+    local theme = Solstice.CurrentTheme
+    
+    --// New Tab
+    instances["contentContainer"].Position = Dim2New(1, 0, 0, 0)
+    Flux.Tween(instances["contentContainer"], {Position = Dim2New(0, 0, 0, 0)})
+    Flux.Tween(instances["topbarAccent"], {Size = Dim2New(0.8, 0, 0, 2)})
+    Flux.Tween(instances["topbarAccent"], {Position = Dim2New(0.1, 0, 1, -2)})
+    Flux.Tween(instances["topbarTitle"], {TextColor3 = theme.ActiveText})
+    Solstice.RegisterThemeValue(instances["topbarTitle"], {TextColor3 = "ActiveText"})
+    
+    --// Old Tab
+    if previous then
+        local oldInstances = previous.Instances
+        
+        Flux.Tween(oldInstances["contentContainer"], {Position = Dim2New(-1, 0, 0, 0)})
+        Flux.Tween(oldInstances["topbarAccent"], {Size = Dim2New(0, 0, 0, 2)})
+        Flux.Tween(oldInstances["topbarAccent"], {Position = Dim2New(0.5, 0, 1, -2)})
+        Flux.Tween(oldInstances["topbarTitle"], {TextColor3 = theme.InactiveText})
+        Solstice.RegisterThemeValue(oldInstances["topbarTitle"], {TextColor3 = "InactiveText"})
+    end
+    
+    -- Set ActiveTab
+    self.Page.ActiveTab = self
+end
+
+--//========================================
+--// Return Library
+--//========================================
+
+return Solstice
