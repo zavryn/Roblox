@@ -22,15 +22,15 @@ function UIManager.MouseLeave(object: GuiObject, callback: () -> ()): RBXScriptC
 	return object.MouseLeave:Connect(callback)
 end
 
-function UIManager.InputBegan(object: GuiObject, callback: (...any) -> ()): RBXScriptConnection?
+function UIManager.InputBegan(object: GuiObject | UserInputService, callback: (...any) -> ()): RBXScriptConnection?
 	return object.InputBegan:Connect(callback)
 end
 
-function UIManager.InputEnded(object: GuiObject, callback: (...any) -> ()): RBXScriptConnection?
+function UIManager.InputEnded(object: GuiObject | UserInputService, callback: (...any) -> ()): RBXScriptConnection?
 	return object.InputEnded:Connect(callback)
 end
 
-function UIManager.InputChanged(object: GuiObject, callback: (...any) -> ()): RBXScriptConnection?
+function UIManager.InputChanged(object: GuiObject | UserInputService, callback: (...any) -> ()): RBXScriptConnection?
 	return object.InputChanged:Connect(callback)
 end
 
